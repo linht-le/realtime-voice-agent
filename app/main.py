@@ -1,7 +1,10 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings
 from app.routes import router
@@ -29,4 +32,20 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(title="LangGraph Voice Agent", version="0.1.0", lifespan=lifespan)
 
+# Include API routes
 app.include_router(router)
+
+# Setup static files directory
+STATIC_DIR = Path(__file__).parent / "static"
+STATIC_DIR.mkdir(exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+
+# Serve HTML UI at root
+@app.get("/")
+async def serve_ui():
+    """Serve the voice assistant UI"""
+    html_file = STATIC_DIR / "index.html"
+    if html_file.exists():
+        return FileResponse(html_file)
+    return {"message": "Voice Agent API is running. Upload UI to /app/static/index.html"}

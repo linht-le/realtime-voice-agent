@@ -1,7 +1,7 @@
 [project]
-name = "langgraph-voice-agent"
+name = "realtime-voice-agent"
 version = "0.1.0"
-description = "LangGraph-powered OpenAI Realtime API voice agent"
+description = "Realtime voice agent"
 requires-python = ">=3.13"
 dependencies = [
     "duckduckgo-search==8.1.1",
