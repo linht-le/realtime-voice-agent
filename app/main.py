@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings
@@ -49,3 +49,12 @@ async def serve_ui():
     if html_file.exists():
         return FileResponse(html_file)
     return {"message": "Voice Agent API is running. Upload UI to /app/static/index.html"}
+
+
+@app.get("/favicon.ico")
+async def favicon():
+    """Serve favicon"""
+    favicon_file = STATIC_DIR / "favicon.ico"
+    if favicon_file.exists():
+        return FileResponse(favicon_file)
+    return Response(status_code=204)

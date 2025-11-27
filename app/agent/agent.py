@@ -1,6 +1,7 @@
 import json
 import logging
 from collections.abc import Callable
+from contextlib import suppress
 from typing import Any, TypedDict
 
 import websockets
@@ -25,7 +26,7 @@ class VoiceAgent:
         voice: str,
         instructions: str,
         tools: list[BaseTool] | None = None,
-        api_key: str = ""
+        api_key: str = "",
     ):
         self.model = model
         self.voice = voice
@@ -153,12 +154,10 @@ class VoiceAgent:
                     error_code = event.get("error", {}).get("code", "")
                     if error_code != "response_cancel_not_active":
                         logger.error(f"OpenAI error: {event}")
-                        try:
+                        with suppress(Exception):
                             await browser_send(
                                 json.dumps({"type": "error", "error": event.get("error")})
                             )
-                        except Exception:
-                            pass  # WebSocket may be closed
 
             except Exception as e:
                 logger.error(f"Error processing OpenAI event {event_type}: {e}")

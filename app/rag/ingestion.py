@@ -1,4 +1,5 @@
 import logging
+from contextlib import suppress
 
 from docx import Document
 from langchain_core.documents import Document as LangchainDocument
@@ -35,13 +36,11 @@ def ingest_document(
     embeddings = OpenAIEmbeddings()
     client = QdrantClient(url=settings.QDRANT_URL)
 
-    try:
+    with suppress(Exception):
         client.create_collection(
             collection_name=settings.COLLECTION_NAME,
             vectors_config=VectorParams(size=1536, distance=Distance.COSINE),
         )
-    except Exception:
-        pass
 
     vector_store = QdrantVectorStore(
         client=client, collection_name=settings.COLLECTION_NAME, embedding=embeddings

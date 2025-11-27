@@ -22,3 +22,16 @@ htmlcov/
 .DS_Store
 qdrant_storage/
 .~lock.*
+
+# Development tools
+.devcontainer/
+.vscode/
+.claude/
+.ruff_cache/
+
+# Docker files (not needed in image)
+docker-compose*.yml
+Dockerfile
+
+# SSL certificates
+ssl/

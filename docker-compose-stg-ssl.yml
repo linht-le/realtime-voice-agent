@@ -10,6 +10,7 @@ services:
       - .env
     volumes:
       - qdrant_storage:/qdrant/storage
+    restart: always
 
   voice-agent:
     build: .
@@ -18,11 +19,18 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    volumes:
-      - ./app:/app/app
     depends_on:
       - qdrant
-    command: sleep infinity
+    volumes:
+      - ./.env:/app/.env
+      - ./ssl:/ssl
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --ssl-keyfile /ssl/key.pem
+      --ssl-certfile /ssl/cert.pem
+    restart: always
 
 volumes:
   qdrant_storage:

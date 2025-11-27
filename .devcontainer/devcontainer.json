@@ -1,0 +1,60 @@
+{
+  "name": "Realtime Voice Agent",
+  "dockerComposeFile": "../docker-compose-dev.yml",
+  "service": "voice-agent",
+  "workspaceFolder": "/app",
+
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": false,
+      "username": "user"
+    }
+  },
+
+  "shutdownAction": "stopCompose",
+  "remoteUser": "user",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "ms-azuretools.vscode-docker",
+        "Anthropic.claude-code"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "python.defaultInterpreterPath": "/app/.venv/bin/python",
+        "python.analysis.autoImportCompletions": true,
+        "python.linting.enabled": true,
+        "python.linting.ruffEnabled": true,
+        "python.languageServer": "Pylance",
+        "python.formatting.provider": "none",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.rulers": [100],
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit",
+            "source.fixAll": "explicit"
+          }
+        },
+        "editor.formatOnSave": true,
+        "editor.wordWrapColumn": 100,
+        "ruff.enable": true,
+        "files.exclude": {
+          "**/.git": true,
+          "**/*.pyc": true,
+          "**/__pycache__": true,
+          "**/.vscode": true,
+          "**/.ruff_cache": true,
+          "**/.pytest_cache": true,
+          "**/*.egg-info": true
+        }
+      }
+    }
+  },
+
+  "postCreateCommand": "uv venv && uv pip install -e '.[dev]'"
+}
