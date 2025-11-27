@@ -15,9 +15,7 @@ class Settings(BaseSettings):
     QDRANT_URL: str = "http://localhost:6333"
     COLLECTION_NAME: str = "documents"
 
-    model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore"
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 
 @lru_cache

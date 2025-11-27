@@ -46,5 +46,8 @@ sudo systemctl daemon-reload
 sudo systemctl enable ngrok
 sudo systemctl start ngrok
 
-echo "Done! Check URL:"
-echo "curl http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'"
+echo "Waiting for ngrok to start..."
+sleep 5
+
+echo "Public URL:"
+curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
