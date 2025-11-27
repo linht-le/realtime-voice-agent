@@ -6,6 +6,8 @@ services:
     container_name: qdrant-prod
     ports:
       - "6333:6333"
+    env_file:
+      - .env
     volumes:
       - qdrant_storage:/qdrant/storage
     restart: always
