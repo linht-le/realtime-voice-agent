@@ -27,5 +27,29 @@ fi
 echo "Configuring ngrok authtoken..."
 ngrok config add-authtoken $NGROK_AUTHTOKEN
 
-echo "Ngrok setup complete!"
-echo "Run 'ngrok http 8000' to start tunneling"
+echo "Creating systemd service..."
+sudo tee /etc/systemd/system/ngrok.service > /dev/null <<EOF
+[Unit]
+Description=ngrok
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/ngrok http 8000 --log=stdout
+Restart=always
+User=$USER
+WorkingDirectory=$PWD
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+echo "Starting ngrok service..."
+sudo systemctl daemon-reload
+sudo systemctl enable ngrok
+sudo systemctl start ngrok
+
+echo "Waiting for ngrok to start..."
+sleep 5
+
+echo "Public URL:"
+curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
