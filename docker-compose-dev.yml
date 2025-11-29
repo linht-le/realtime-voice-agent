@@ -13,6 +13,7 @@ services:
 
   voice-agent:
     build: .
+    image: voice-agent:dev
     container_name: voice-agent-dev
     ports:
       - "8000:8000"
