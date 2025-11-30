@@ -1,0 +1,164 @@
+name: Deploy to Staging SSL
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  backup:
+    name: Backup Current Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add known hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Backup current image
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
+            cd ~/realtime-voice-agent
+
+            echo "Backing up current image..."
+            if docker images | grep -q "voice-agent.*stg"; then
+              docker tag voice-agent:stg voice-agent:stg-backup || true
+              echo "Backup completed"
+            else
+              echo "No existing image to backup"
+            fi
+          EOF
+
+  deploy:
+    name: Deploy New Version
+    needs: backup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add known hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Deploy to EC2
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
+            cd ~/realtime-voice-agent
+
+            echo "Pulling latest code..."
+            git pull origin main
+
+            echo "Setting up SSL certificates..."
+            ./scripts/setup-ssl.sh
+
+            echo "Building and starting containers..."
+            docker compose -f docker-compose-stg-ssl.yml up -d --build
+
+            echo "Waiting for containers to be ready..."
+            sleep 10
+
+            echo "Deploy completed"
+          EOF
+
+  verify:
+    name: Verify Deployment
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add known hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Health check
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
+            cd ~/realtime-voice-agent
+
+            echo "Running health check..."
+            if curl -f -k https://localhost:8001/health; then
+              echo "Health check passed!"
+            else
+              echo "Health check failed!"
+              exit 1
+            fi
+          EOF
+
+  rollback:
+    name: Rollback on Failure
+    needs: [deploy, verify]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add known hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Rollback deployment
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
+            cd ~/realtime-voice-agent
+
+            echo "Rolling back to previous version..."
+            docker compose -f docker-compose-stg-ssl.yml down
+
+            if docker images | grep -q "voice-agent.*stg-backup"; then
+              docker tag voice-agent:stg-backup voice-agent:stg
+              docker compose -f docker-compose-stg-ssl.yml up -d
+              echo "Rollback completed"
+            else
+              echo "No backup image found!"
+              exit 1
+            fi
+          EOF
+
+  cleanup:
+    name: Cleanup Old Images
+    needs: verify
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add known hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Cleanup
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
+            cd ~/realtime-voice-agent
+
+            echo "Cleaning up old images..."
+            docker image prune -f
+            echo "Cleanup completed"
+          EOF
