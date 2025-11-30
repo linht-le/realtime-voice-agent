@@ -26,10 +26,15 @@ jobs:
             set -e
 
             echo "Deploying to staging..."
-            cd ~/app
+            cd ~/realtime-voice-agent
 
             echo "Pulling latest code..."
             git pull origin main
+
+            echo "Backing up current image..."
+            if docker images | grep -q "voice-agent.*stg"; then
+              docker tag voice-agent:stg voice-agent:stg-backup || true
+            fi
 
             echo "Setting up SSL certificates..."
             ./scripts/setup-ssl.sh
@@ -37,12 +42,25 @@ jobs:
             echo "Building and starting containers..."
             docker compose -f docker-compose-stg-ssl.yml up -d --build
 
-            echo "Checking container health..."
-            sleep 5
-            docker ps --filter "name=voice-agent-stg" --format "{{.Names}}: {{.Status}}"
+            echo "Waiting for containers to be ready..."
+            sleep 10
 
-            echo "Cleaning up..."
-            docker system prune -f
+            echo "Running health check..."
+            if curl -f -k https://localhost:8001/health; then
+              echo "Health check passed!"
+            else
+              echo "Health check failed! Rolling back..."
+              docker compose -f docker-compose-stg-ssl.yml down
+              if docker images | grep -q "voice-agent.*stg-backup"; then
+                docker tag voice-agent:stg-backup voice-agent:stg
+                docker compose -f docker-compose-stg-ssl.yml up -d
+                echo "Rollback completed"
+              fi
+              exit 1
+            fi
+
+            echo "Cleaning up old images..."
+            docker image prune -f
 
             echo "Deploy completed successfully!"
           EOF

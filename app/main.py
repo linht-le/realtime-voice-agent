@@ -58,3 +58,9 @@ async def favicon():
     if favicon_file.exists():
         return FileResponse(favicon_file)
     return Response(status_code=204)
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for deployment verification"""
+    return {"status": "healthy", "service": "voice-agent"}
