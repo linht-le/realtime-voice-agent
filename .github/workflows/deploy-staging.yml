@@ -28,7 +28,7 @@ jobs:
 
             echo "Backing up current image..."
             if docker images | grep -q "voice-agent.*stg"; then
-              docker tag voice-agent:stg voice-agent:stg-backup || true
+              docker tag voice-agent:stg-lastest voice-agent:stg-backup || true
               echo "Backup completed"
             else
               echo "No existing image to backup"
@@ -127,7 +127,7 @@ jobs:
             docker compose -f docker-compose-stg-ssl.yml down
 
             if docker images | grep -q "voice-agent.*stg-backup"; then
-              docker tag voice-agent:stg-backup voice-agent:stg
+              docker tag voice-agent:stg-backup voice-agent:stg-lastest
               docker compose -f docker-compose-stg-ssl.yml up -d
               echo "Rollback completed"
             else
