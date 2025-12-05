@@ -7,19 +7,19 @@ services:
     env_file:
       - .env
     ports:
-      - "6334:6333"
+      - "6333:6333"
     volumes:
       - qdrant_storage_stg:/qdrant/storage
     restart: always
 
   voice-agent:
     build: .
-    image: voice-agent:stg
+    image: voice-agent:stg-latest
     container_name: voice-agent-stg
     env_file:
       - .env
     ports:
-      - "8001:8000"
+      - "8000:8000"
     depends_on:
       - qdrant
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
