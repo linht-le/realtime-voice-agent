@@ -1,25 +1,29 @@
 [project]
 name = "realtime-voice-agent"
 version = "0.1.0"
-description = "Realtime voice agent"
-readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "duckduckgo-search==8.1.1",
     "fastapi==0.121.3",
-    "langchain-community==0.4.1",
+    "pydantic-settings==2.12.0",
+    "uvicorn==0.38.0",
+    "gunicorn==23.0.0",
+    "websockets==15.0.1",
     "langchain-core==1.0.7",
+    "langchain-community==0.4.1",
+    "langchain-openai==1.0.3",
     "langchain-tavily==0.2.13",
     "langgraph==1.0.3",
-    "pydantic-settings==2.12.0",
     "tavily-python==0.7.13",
-    "uvicorn==0.38.0",
-    "websockets==15.0.1",
-    "python-docx==1.2.0",
     "qdrant-client==1.16.0",
     "langchain-qdrant==1.1.0",
-    "langchain-openai==1.0.3",
-    "python-multipart==0.0.20"
+    "sqlalchemy[asyncio]==2.0.45",
+    "asyncpg==0.31.0",
+    "psycopg[binary]==3.2.6",
+    "alembic==1.17.2",
+    "python-docx==1.2.0",
+    "pypdf==5.1.0",
+    "openpyxl==3.1.5",
+    "python-pptx==1.0.2",
 ]
 
 [project.optional-dependencies]
@@ -27,18 +31,26 @@ dev = [
     "ruff==0.14.5"
 ]
 
-[tool.setuptools]
-packages = ["app"]
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+exclude = ["alembic*"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py313"
+extend-exclude = [
+    "app/backend/constants/prompts.py",
+    "app/backend/constants/descriptions.py",
+    "alembic/"
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "Q", "UP", "B", "SIM"]
-ignore = ["E501", "B008"]
+ignore = ["B008"]
 
 [tool.ruff.format]
 quote-style = "double"
-skip-magic-trailing-comma = false
-line-ending = "auto"

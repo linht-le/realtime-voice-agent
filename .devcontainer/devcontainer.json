@@ -1,18 +1,19 @@
 {
   "name": "Realtime Voice Agent",
-  "dockerComposeFile": "../docker-compose-dev.yml",
+  "dockerComposeFile": "docker-compose.yml",
   "service": "voice-agent",
   "workspaceFolder": "/app",
 
+  "overrideCommand": false,
+  "shutdownAction": "stopCompose",
+  "remoteUser": "root",
+
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
-      "installZsh": false,
-      "username": "user"
+      "installZsh": true,
+      "configureZshAsDefaultShell": true
     }
   },
-
-  "shutdownAction": "stopCompose",
-  "remoteUser": "user",
 
   "customizations": {
     "vscode": {
@@ -21,18 +22,15 @@
         "ms-python.vscode-pylance",
         "charliermarsh.ruff",
         "ms-azuretools.vscode-docker",
+        "github.vscode-github-actions",
+        "Vue.volar",
         "Anthropic.claude-code"
       ],
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash",
-        "python.defaultInterpreterPath": "/app/.venv/bin/python",
-        "python.analysis.autoImportCompletions": true,
-        "python.linting.enabled": true,
-        "python.linting.ruffEnabled": true,
-        "python.languageServer": "Pylance",
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
         "python.formatting.provider": "none",
+        "editor.formatOnSave": false,
         "[python]": {
-          "editor.defaultFormatter": "charliermarsh.ruff",
           "editor.formatOnSave": true,
           "editor.rulers": [100],
           "editor.codeActionsOnSave": {
@@ -40,21 +38,18 @@
             "source.fixAll": "explicit"
           }
         },
-        "editor.formatOnSave": true,
-        "editor.wordWrapColumn": 100,
         "ruff.enable": true,
+        "ruff.format.enable": true,
         "files.exclude": {
-          "**/.git": true,
-          "**/*.pyc": true,
           "**/__pycache__": true,
-          "**/.vscode": true,
+          "**/*.pyc": true,
           "**/.ruff_cache": true,
-          "**/.pytest_cache": true,
-          "**/*.egg-info": true
+          "**/*.egg-info": true,
+          "**/node_modules": true
         }
       }
     }
   },
 
-  "postCreateCommand": "uv venv --clear && uv pip install -e '.[dev]'"
+  "postCreateCommand": "cd app/frontend && npm install"
 }
