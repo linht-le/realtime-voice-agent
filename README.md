@@ -17,7 +17,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 TAVILY_API_KEY=your_tavily_api_key_here
 ```
 
-### 2. Setup & Run
+### 2. Setup Development Environment
 
 #### Option A: DevContainer (Recommended for VS Code)
 
@@ -25,28 +25,39 @@ TAVILY_API_KEY=your_tavily_api_key_here
 2. Install "Dev Containers" extension
 3. Press `F1` → "Dev Containers: Reopen in Container"
 4. Wait for container to build
-5. Run: `make run`
-6. Open **`http://localhost:8000`** in your browser
 
 #### Option B: Docker Compose
 
 ```bash
 # Start containers
-docker compose -f docker-compose-dev.yml up -d
+docker compose up -d
 
 # Exec into container
 docker exec -it voice-agent-dev bash
-
-# Inside container, run:
-make install
-make run
 ```
 
-Then open **`http://localhost:8000`** in your browser
+### 3. Run Application
 
-**Important:** Always use `http://localhost:8000` in your browser (not `http://0.0.0.0:8000`) to enable microphone access for voice features.
+After setting up environment (Option A or B):
 
-### 3. Upload Documents & Access Dashboard
+```bash
+# Install dependencies
+make install
+
+# Terminal 1 - Run backend
+make run-be
+
+# Terminal 2 - Run frontend (for development)
+make run-fe
+```
+
+**Access:**
+- Frontend (dev): `http://localhost:5173` - Vue.js dev server with hot-reload
+- Backend API: `http://localhost:8000` - Serves built frontend in production
+
+**Important:** Always use `http://localhost:5173` for development to enable microphone access.
+
+### 4. Upload Documents & Access Dashboard
 
 Upload DOCX files to the vector database:
 
@@ -61,8 +72,15 @@ View Qdrant dashboard: `http://localhost:6333/dashboard`
 
 ## Tech Stack
 
+**Backend:**
 - FastAPI
 - OpenAI Realtime API
 - LangGraph
 - Qdrant
+
+**Frontend:**
+- Vue.js 3
+- Pinia
+
+**Infrastructure:**
 - Docker

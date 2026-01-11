@@ -14,7 +14,6 @@ venv/
 ENV/
 .git
 .gitignore
-README.md
 .pytest_cache
 .coverage
 htmlcov/
@@ -22,16 +21,15 @@ htmlcov/
 .DS_Store
 qdrant_storage/
 .~lock.*
-
-# Development tools
+.uv-cache/
+node_modules/
+app/frontend/dist/
+app/frontend/dist-ssr/
+*.local
 .devcontainer/
 .vscode/
 .claude/
 .ruff_cache/
-
-# Docker files (not needed in image)
 docker-compose*.yml
 Dockerfile
-
-# SSL certificates
 ssl/

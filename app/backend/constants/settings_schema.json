@@ -1,0 +1,226 @@
+{
+  "backend": {
+    "voice": {
+      "type": "enum",
+      "values": [
+        "alloy",
+        "ash",
+        "ballad",
+        "coral",
+        "echo",
+        "sage",
+        "shimmer",
+        "verse",
+        "marin",
+        "cedar"
+      ],
+      "default": "alloy",
+      "category": "realtime_native",
+      "note": "Voice for audio responses (session.voice). Can only be changed before starting session."
+    },
+    "language": {
+      "type": "enum",
+      "values": ["auto", "vi", "en", "ja"],
+      "default": "auto",
+      "category": "backend_logic",
+      "note": "Used for prompt/system instruction only. Not a native Realtime setting."
+    },
+    "transcription": {
+      "enabled": {
+        "type": "boolean",
+        "default": true,
+        "category": "backend_logic",
+        "note": "App-level flag. Controls whether transcription config is sent to Realtime API."
+      },
+      "model": {
+        "type": "enum",
+        "values": ["gpt-4o-transcribe-latest", "gpt-4o-mini-transcribe", "whisper-1"],
+        "default": "whisper-1",
+        "category": "realtime_native",
+        "note": "Transcription model (input_audio_transcription.model)."
+      }
+    },
+    "vad": {
+      "enabled": {
+        "type": "boolean",
+        "default": true,
+        "category": "backend_logic",
+        "note": "App-level flag. Controls whether turn_detection config is sent."
+      },
+      "type": {
+        "type": "enum",
+        "values": ["server_vad", "semantic_vad", "none"],
+        "default": "server_vad",
+        "category": "backend_logic",
+        "note": "Determines which turn_detection type to use: server_vad (silence), semantic_vad (context), none (manual)."
+      },
+      "threshold": {
+        "type": "number",
+        "min": 0.0,
+        "max": 1.0,
+        "step": 0.05,
+        "default": 0.5,
+        "category": "realtime_native",
+        "note": "Speech detection sensitivity (turn_detection.threshold, server_vad only)."
+      },
+      "prefix_padding_ms": {
+        "type": "number",
+        "min": 0,
+        "max": 1000,
+        "step": 50,
+        "default": 300,
+        "category": "realtime_native",
+        "note": "Audio buffer before speech (turn_detection.prefix_padding_ms, server_vad only)."
+      },
+      "silence_duration_ms": {
+        "type": "number",
+        "min": 100,
+        "max": 2000,
+        "step": 100,
+        "default": 800,
+        "category": "realtime_native",
+        "note": "Silence duration to end turn (turn_detection.silence_duration_ms, server_vad only)."
+      },
+      "semantic_eagerness": {
+        "type": "enum",
+        "values": ["low", "medium", "high", "auto"],
+        "default": "auto",
+        "category": "realtime_native",
+        "note": "Response eagerness (turn_detection.eagerness, semantic_vad only)."
+      },
+      "interrupt_response": {
+        "type": "boolean",
+        "default": true,
+        "category": "realtime_native",
+        "note": "Allow user to interrupt assistant (turn_detection.interrupt_response, semantic_vad only)."
+      }
+    },
+    "response": {
+      "auto_response": {
+        "type": "boolean",
+        "default": true,
+        "category": "realtime_native",
+        "note": "Auto-create response after turn detection (turn_detection.create_response, semantic_vad only)."
+      }
+    },
+    "generation": {
+      "temperature": {
+        "type": "number",
+        "min": 0.0,
+        "max": 2.0,
+        "step": 0.1,
+        "default": 0.7,
+        "category": "realtime_native",
+        "note": "Response randomness and creativity (session.temperature)."
+      },
+      "max_output_tokens": {
+        "type": "number",
+        "min": 16,
+        "max": 4096,
+        "step": 16,
+        "default": 1024,
+        "category": "realtime_native",
+        "note": "Maximum tokens per response (session.max_response_output_tokens)."
+      }
+    },
+    "audio": {
+      "input_format": {
+        "type": "enum",
+        "values": ["pcm16", "opus"],
+        "default": "pcm16",
+        "category": "realtime_native",
+        "note": "Audio input format (session.input_audio_format). opus requires WebRTC transport; pcm16 recommended for WebSocket. Requires session restart."
+      },
+      "output_format": {
+        "type": "enum",
+        "values": ["pcm16", "opus"],
+        "default": "pcm16",
+        "category": "realtime_native",
+        "note": "Audio output format (session.output_audio_format). opus requires WebRTC transport; pcm16 recommended for WebSocket. Requires session restart."
+      }
+    }
+  },
+  "client": {
+    "audio_input": {
+      "noise_reduction": {
+        "type": "enum",
+        "values": ["off", "near_field", "far_field"],
+        "default": "near_field",
+        "category": "client_only",
+        "note": "Browser noise suppression mode (MediaStreamConstraints)."
+      },
+      "echo_cancellation": {
+        "type": "boolean",
+        "default": true,
+        "category": "client_only",
+        "note": "Browser echo cancellation (MediaStreamConstraints)."
+      },
+      "auto_gain_control": {
+        "type": "boolean",
+        "default": true,
+        "category": "client_only",
+        "note": "Browser auto gain control (MediaStreamConstraints)."
+      },
+      "input_sensitivity": {
+        "type": "number",
+        "min": 0.0,
+        "max": 1.0,
+        "step": 0.05,
+        "default": 0.7,
+        "category": "client_only",
+        "note": "Microphone sensitivity (browser GainNode)."
+      }
+    },
+    "audio_output": {
+      "speaking_rate": {
+        "type": "number",
+        "min": 0.25,
+        "max": 1.5,
+        "step": 0.05,
+        "default": 1.0,
+        "category": "client_only",
+        "note": "Audio playback speed (browser AudioContext)."
+      },
+      "volume_gain_db": {
+        "type": "number",
+        "min": -10,
+        "max": 10,
+        "step": 1,
+        "default": 0,
+        "category": "client_only",
+        "note": "Output volume gain in dB (browser GainNode)."
+      }
+    },
+    "ui": {
+      "show_transcripts": {
+        "type": "boolean",
+        "default": true,
+        "category": "client_only",
+        "note": "Display transcription text in UI."
+      },
+      "show_timestamps": {
+        "type": "boolean",
+        "default": true,
+        "category": "client_only",
+        "note": "Show timestamps in transcripts."
+      }
+    },
+    "interaction": {
+      "response_delay_ms": {
+        "type": "number",
+        "min": 0,
+        "max": 1000,
+        "step": 50,
+        "default": 0,
+        "category": "client_only",
+        "note": "Client-side delay before playing response (browser logic)."
+      },
+      "allow_barge_in": {
+        "type": "boolean",
+        "default": true,
+        "category": "client_only",
+        "note": "Allow user to speak while assistant is playing (client UX flag)."
+      }
+    }
+  }
+}
