@@ -1,25 +1,57 @@
 <template>
   <div class="prompt-tab">
-    <div class="prompt-header">
-      <h2>System Instructions</h2>
-    </div>
+    <!-- Header -->
+    <header class="tab-header">
+      <div class="header-content">
+        <h2>System Instructions</h2>
+        <p class="header-subtitle">Customize how your AI assistant behaves</p>
+      </div>
+    </header>
 
-    <div class="prompt-body">
-      <div class="prompt-editor">
-        <textarea
-          v-model="localPrompt"
-          placeholder="Enter system instructions for the AI assistant..."
-          @input="hasChanges = true"
-        ></textarea>
-        <div class="char-count">{{ localPrompt.length }} characters</div>
+    <!-- Body -->
+    <div class="tab-body">
+      <!-- Editor Card -->
+      <div class="editor-card">
+        <div class="editor-header">
+          <div class="editor-title">
+            <FileText :size="20" />
+            <span>System Prompt</span>
+          </div>
+          <div class="char-counter">
+            <span class="char-count">{{ localPrompt.length }}</span>
+            <span class="char-label">characters</span>
+          </div>
+        </div>
+
+        <div class="editor-body">
+          <textarea
+            v-model="localPrompt"
+            placeholder="Enter system instructions for the AI assistant...
+
+Example:
+You are a helpful assistant specialized in...
+- Always respond in a friendly manner
+- Focus on providing accurate information
+- Ask clarifying questions when needed"
+            @input="hasChanges = true"
+          ></textarea>
+        </div>
       </div>
 
-      <div class="prompt-actions">
-        <button class="btn-save" @click="savePrompt" :disabled="!hasChanges">
-          Save
+      <!-- Actions -->
+      <div class="actions-row">
+        <button class="btn btn-secondary" @click="handleResetToDefault">
+          <RotateCcw :size="18" />
+          <span>Reset to Default</span>
         </button>
-        <button class="btn-reset-default" @click="handleResetToDefault">
-          Reset
+        <button
+          class="btn btn-primary"
+          @click="savePrompt"
+          :disabled="!hasChanges"
+          :class="{ saving: isSaving }"
+        >
+          <Save :size="18" />
+          <span>{{ isSaving ? 'Saving...' : 'Save Changes' }}</span>
         </button>
       </div>
     </div>
@@ -27,12 +59,14 @@
 </template>
 
 <script setup>
+import { FileText, RotateCcw, Save } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { usePrompts } from '../composables/usePrompts'
 
 const { prompt, defaultPrompt, updatePrompt, resetToDefault } = usePrompts()
 const localPrompt = ref('')
 const hasChanges = ref(false)
+const isSaving = ref(false)
 
 watch(
   prompt,
@@ -44,10 +78,12 @@ watch(
 )
 
 const savePrompt = async () => {
+  isSaving.value = true
   const success = await updatePrompt(localPrompt.value)
   if (success) {
     hasChanges.value = false
   }
+  isSaving.value = false
 }
 
 const handleResetToDefault = async () => {
@@ -59,112 +95,172 @@ const handleResetToDefault = async () => {
 <style scoped>
 .prompt-tab {
   height: 100vh;
-  display: grid;
-  grid-template-rows: auto 1fr;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
 }
 
-.prompt-header {
-  padding: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+/* Header */
+.tab-header {
+  padding: var(--space-xl) var(--space-xl) var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+  background: linear-gradient(180deg, rgba(177, 156, 217, 0.05) 0%, transparent 100%);
 }
 
-.prompt-header h2 {
+.header-content h2 {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--color-primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-subtitle {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
 }
 
-.prompt-body {
-  padding: 24px;
-  display: grid;
-  grid-template-rows: 1fr auto;
-  gap: 16px;
+/* Body */
+.tab-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-xl);
+  gap: var(--space-lg);
   overflow: hidden;
 }
 
-.prompt-editor {
-  display: grid;
-  grid-template-rows: 1fr auto;
-  gap: 8px;
+/* Editor Card */
+.editor-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  transition: all var(--transition-normal);
+}
+
+.editor-card:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: var(--glow-primary);
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 16px;
-  overflow: hidden;
 }
 
-.prompt-editor textarea {
-  width: 100%;
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  line-height: 1.6;
-  resize: none;
-  outline: none;
-  overflow-y: auto;
+.editor-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
 }
 
-.prompt-editor textarea::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+.char-counter {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
 }
 
 .char-count {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
-  text-align: right;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
-.prompt-actions {
-  display: flex;
-  gap: 12px;
+.char-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
 }
 
-.prompt-actions button {
+.editor-body {
   flex: 1;
-  height: 48px;
+  padding: var(--space-lg);
+  overflow: hidden;
+}
+
+.editor-body textarea {
+  width: 100%;
+  height: 100%;
+  background: transparent;
   border: none;
-  border-radius: 8px;
-  font-size: 15px;
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: var(--font-size-sm);
+  line-height: 1.7;
+  resize: none;
+  outline: none;
+}
+
+.editor-body textarea::placeholder {
+  color: var(--text-hint);
+}
+
+/* Actions */
+.actions-row {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  height: 52px;
+  padding: 0 var(--space-xl);
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-base);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
 }
 
-.btn-save {
-  background: #AB47BC;
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: white;
+  box-shadow: var(--glow-primary);
 }
 
-.btn-save:hover:not(:disabled) {
-  background: #9C27B0;
-  transform: translateY(-1px);
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(177, 156, 217, 0.5);
 }
 
-.btn-save:disabled {
-  background: rgba(171, 71, 188, 0.3);
+.btn-primary:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
-.btn-reset-default {
-  background: rgba(255, 152, 0, 0.2);
-  color: #ff9800;
-  border: 1px solid rgba(255, 152, 0, 0.3);
+.btn-primary.saving {
+  pointer-events: none;
 }
 
-.btn-reset-default:hover {
-  background: rgba(255, 152, 0, 0.3);
-  color: #ff9800;
-  border-color: rgba(255, 152, 0, 0.5);
-  transform: translateY(-1px);
+.btn-secondary {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
 }
 
-.prompt-editor textarea::-webkit-scrollbar {
-  width: 6px;
-}
-
-.prompt-editor textarea::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+.btn-secondary:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
 }
 </style>

@@ -217,3 +217,9 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 *.log
+
+# Electron
+electron/node_modules/
+electron/dist/
+electron/*.ico
+electron/*.icns

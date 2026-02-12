@@ -1,0 +1,78 @@
+{
+    "name": "realtime-voice-agent",
+    "version": "1.0.0",
+    "description": "Realtime Voice Agent Desktop Application",
+    "main": "main.js",
+    "author": "Your Name",
+    "license": "MIT",
+    "scripts": {
+        "start": "electron .",
+        "dev": "NODE_ENV=development electron --no-sandbox .",
+        "build": "electron-builder",
+        "build:win": "electron-builder --win",
+        "build:mac": "electron-builder --mac",
+        "build:linux": "electron-builder --linux",
+        "pack": "electron-builder --dir"
+    },
+    "dependencies": {
+        "electron-is-dev": "^3.0.1"
+    },
+    "devDependencies": {
+        "electron": "^40.4.0",
+        "electron-builder": "^26.7.0"
+    },
+    "build": {
+        "appId": "com.voiceagent.app",
+        "productName": "Voice Agent",
+        "directories": {
+            "output": "dist",
+            "buildResources": "resources"
+        },
+        "files": [
+            "main.js",
+            "preload.js",
+            "renderer/**/*"
+        ],
+        "extraResources": [
+            {
+                "from": "../app",
+                "to": "app",
+                "filter": [
+                    "**/*",
+                    "!frontend/node_modules/**/*"
+                ]
+            },
+            {
+                "from": "../pyproject.toml",
+                "to": "pyproject.toml"
+            }
+        ],
+        "win": {
+            "target": [
+                "nsis",
+                "portable"
+            ],
+            "icon": "resources/icon.ico"
+        },
+        "mac": {
+            "target": [
+                "dmg",
+                "zip"
+            ],
+            "icon": "resources/icon.icns",
+            "category": "public.app-category.productivity"
+        },
+        "linux": {
+            "target": [
+                "AppImage",
+                "deb"
+            ],
+            "icon": "resources/icon.png",
+            "category": "Utility"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true
+        }
+    }
+}
