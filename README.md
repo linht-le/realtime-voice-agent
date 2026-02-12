@@ -49,15 +49,29 @@ make run-be
 
 # Terminal 2 - Run frontend (for development)
 make run-fe
+
+# Terminal 3 - Run desktop app (Electron)
+make run-electron
 ```
 
 **Access:**
 - Frontend (dev): `http://localhost:5173` - Vue.js dev server with hot-reload
 - Backend API: `http://localhost:8000` - Serves built frontend in production
+- Desktop App: Runs locally via Electron
 
 **Important:** Always use `http://localhost:5173` for development to enable microphone access.
 
-### 4. Upload Documents & Access Dashboard
+### 4. Build Desktop App
+
+To build standalone executable (Linux AppImage/Deb):
+
+```bash
+cd electron
+npm run build:linux
+```
+The output file will be in `electron/dist/`.
+
+### 5. Upload Documents & Access Dashboard
 
 Upload DOCX files to the vector database:
 

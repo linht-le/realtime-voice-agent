@@ -49,7 +49,7 @@
         }
       }
     }
-  },
+  } ,
 
   "postCreateCommand": "cd app/frontend && npm install"
 }
